@@ -6,9 +6,9 @@
 
 [![PyPI](https://img.shields.io/pypi/v/wzj-signin.svg)](https://pypi.org/project/wzj-signin/)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/wzj-signin.svg)](https://pypi.org/project/wzj-signin/)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/huanglune/wzj-signin/blob/main/LICENSE)
 
-English | [中文](README.zh-CN.md)
+English | [中文](https://github.com/huanglune/wzj-signin/blob/main/README.zh-CN.md)
 
 </div>
 
@@ -49,7 +49,7 @@ OPEN_ID="https://v18.teachermate.cn/wechat-pro-ssr/?openid=xxx&from=wzj" COURSE_
 
 ### Config File
 
-Place a `config.toml` in the working directory (see [config.toml.example](config.toml.example)):
+Place a `config.toml` in the working directory (see [config.toml.example](https://github.com/huanglune/wzj-signin/blob/main/config.toml.example)):
 
 ```toml
 [default]
@@ -96,13 +96,13 @@ receiver = "notify@example.com"
 
 1. Tap "All (A)" in the TeacherMate WeChat service account
 
-   ![Enter TeacherMate](docs/enter-wzj.png)
+   ![Enter TeacherMate](https://raw.githubusercontent.com/huanglune/wzj-signin/main/docs/enter-wzj.png)
 
 2. Copy the URL from the browser address bar
 
-   ![Copy link](docs/copy-link.png)
+   ![Copy link](https://raw.githubusercontent.com/huanglune/wzj-signin/main/docs/copy-link.png)
 
-   ![Get link](docs/get-link.png)
+   ![Get link](https://raw.githubusercontent.com/huanglune/wzj-signin/main/docs/get-link.png)
 
 3. The part after `openid=` in the URL is your OpenId:
 
@@ -119,19 +119,19 @@ receiver = "notify@example.com"
 
 1. Open the TeacherMate course page and launch browser DevTools (F12)
 
-   ![Open course](docs/open-course.png)
+   ![Open course](https://raw.githubusercontent.com/huanglune/wzj-signin/main/docs/open-course.png)
 
-   ![DevTools](docs/devtools.png)
+   ![DevTools](https://raw.githubusercontent.com/huanglune/wzj-signin/main/docs/devtools.png)
 
 2. Find the course-related API request in the Network tab to get the `courseId`
 
-   ![View request](docs/view-request.png)
+   ![View request](https://raw.githubusercontent.com/huanglune/wzj-signin/main/docs/view-request.png)
 
-   ![Find courseId](docs/find-course-id.png)
+   ![Find courseId](https://raw.githubusercontent.com/huanglune/wzj-signin/main/docs/find-course-id.png)
 
-   ![courseId details](docs/course-id-detail.png)
+   ![courseId details](https://raw.githubusercontent.com/huanglune/wzj-signin/main/docs/course-id-detail.png)
 
-   ![Confirm courseId](docs/confirm-course-id.png)
+   ![Confirm courseId](https://raw.githubusercontent.com/huanglune/wzj-signin/main/docs/confirm-course-id.png)
 
 </details>
 
@@ -181,12 +181,16 @@ receiver = "notify@example.com"
 
 After starting, the program polls for active sign-ins and handles normal, GPS, and QR sign-ins automatically:
 
-![Running](docs/running.png)
+![Running](https://raw.githubusercontent.com/huanglune/wzj-signin/main/docs/running.png)
 
 Email notification:
 
-![Email notification](docs/email-notification.png)
+![Email notification](https://raw.githubusercontent.com/huanglune/wzj-signin/main/docs/email-notification.png)
+
+## Reference
+
+- [zn-cn/wzj-sign-in-weixin](https://github.com/zn-cn/wzj-sign-in-weixin)
 
 ## License
 
-[MIT](LICENSE)
+[MIT](https://github.com/huanglune/wzj-signin/blob/main/LICENSE)

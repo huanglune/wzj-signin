@@ -6,9 +6,9 @@
 
 [![PyPI](https://img.shields.io/pypi/v/wzj-signin.svg)](https://pypi.org/project/wzj-signin/)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/wzj-signin.svg)](https://pypi.org/project/wzj-signin/)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/huanglune/wzj-signin/blob/main/LICENSE)
 
-[English](README.md) | 中文
+[English](https://github.com/huanglune/wzj-signin/blob/main/README.md) | 中文
 
 </div>
 
@@ -49,7 +49,7 @@ OPEN_ID="https://v18.teachermate.cn/wechat-pro-ssr/?openid=xxx&from=wzj" COURSE_
 
 ### 配置文件方式
 
-在运行目录放置 `config.toml`（参考 [config.toml.example](config.toml.example)）：
+在运行目录放置 `config.toml`（参考 [config.toml.example](https://github.com/huanglune/wzj-signin/blob/main/config.toml.example)）：
 
 ```toml
 [default]
@@ -96,13 +96,13 @@ receiver = "notify@example.com"
 
 1. 点击微助教服务号中的「全部(A)」
 
-   ![进入微助教](docs/enter-wzj.png)
+   ![进入微助教](https://raw.githubusercontent.com/huanglune/wzj-signin/main/docs/enter-wzj.png)
 
 2. 进入后复制浏览器地址栏中的链接
 
-   ![复制链接](docs/copy-link.png)
+   ![复制链接](https://raw.githubusercontent.com/huanglune/wzj-signin/main/docs/copy-link.png)
 
-   ![获取链接](docs/get-link.png)
+   ![获取链接](https://raw.githubusercontent.com/huanglune/wzj-signin/main/docs/get-link.png)
 
 3. 链接中 `openid=` 后面的部分即为你的 OpenId：
 
@@ -119,19 +119,19 @@ receiver = "notify@example.com"
 
 1. 进入微助教课程页面，打开浏览器开发者工具（F12）
 
-   ![打开课程](docs/open-course.png)
+   ![打开课程](https://raw.githubusercontent.com/huanglune/wzj-signin/main/docs/open-course.png)
 
-   ![开发者工具](docs/devtools.png)
+   ![开发者工具](https://raw.githubusercontent.com/huanglune/wzj-signin/main/docs/devtools.png)
 
 2. 在网络请求中找到课程相关接口，从中获取 `courseId`
 
-   ![查看请求](docs/view-request.png)
+   ![查看请求](https://raw.githubusercontent.com/huanglune/wzj-signin/main/docs/view-request.png)
 
-   ![找到courseId](docs/find-course-id.png)
+   ![找到courseId](https://raw.githubusercontent.com/huanglune/wzj-signin/main/docs/find-course-id.png)
 
-   ![courseId详情](docs/course-id-detail.png)
+   ![courseId详情](https://raw.githubusercontent.com/huanglune/wzj-signin/main/docs/course-id-detail.png)
 
-   ![确认courseId](docs/confirm-course-id.png)
+   ![确认courseId](https://raw.githubusercontent.com/huanglune/wzj-signin/main/docs/confirm-course-id.png)
 
 </details>
 
@@ -183,12 +183,16 @@ receiver = "notify@example.com"
 
 程序启动后会自动轮询签到，依次处理普通签到、GPS 签到和二维码签到：
 
-![运行过程](docs/running.png)
+![运行过程](https://raw.githubusercontent.com/huanglune/wzj-signin/main/docs/running.png)
 
 邮件通知效果：
 
-![邮件通知](docs/email-notification.png)
+![邮件通知](https://raw.githubusercontent.com/huanglune/wzj-signin/main/docs/email-notification.png)
+
+## 参考链接
+
+- [zn-cn/wzj-sign-in-weixin](https://github.com/zn-cn/wzj-sign-in-weixin)
 
 ## 许可证
 
-[MIT](LICENSE)
+[MIT](https://github.com/huanglune/wzj-signin/blob/main/LICENSE)
