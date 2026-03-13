@@ -1,0 +1,26 @@
+[project]
+name = "wzj-signin"
+version = "0.1.0"
+description = "Auto sign-in tool for TeacherMate (WeZhiJiao)"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+authors = [{ name = "huangliang" }]
+keywords = ["teachermate", "signin", "attendance"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "requests>=2.32.5",
+    "segno>=1.6.6",
+    "websocket-client>=1.9.0",
+]
+
+[project.scripts]
+wzj-signin = "wzj_signin.main:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

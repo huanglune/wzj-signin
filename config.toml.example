@@ -1,0 +1,17 @@
+[default]
+openId = "your_open_id"
+courseId = "your_course_id"
+studentId = "your_student_id"
+pollInterval = 10
+
+# GPS coordinates (optional)
+gps_lon = 113.999877
+gps_lat = 22.595876
+
+# Email notification (optional, QQ Mail example)
+[email]
+enable_send_email = false
+smtp_server = "smtp.qq.com"
+sender = "your@qq.com"
+password = "your_smtp_password"
+receiver = "your@qq.com"
