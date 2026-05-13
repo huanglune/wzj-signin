@@ -72,6 +72,8 @@ receiver = "notify@example.com"
 ```
 
 > 环境变量优先级高于配置文件。
+>
+> 如果 `OPEN_ID` 直接填写的是完整微助教链接，程序现在会同时自动提取其中的 `openid` 和对应域名作为 API 地址。
 
 ## 环境变量
 
@@ -81,6 +83,11 @@ receiver = "notify@example.com"
 | `COURSE_ID` | 课程 ID | ✅ |
 | `STUDENT_ID` | 学号（二维码签到需要） | — |
 | `POLL_INTERVAL` | 轮询间隔秒数（默认：`10`） | — |
+| `API_BASE_URL` | 覆盖 API 基础地址；如果 `OPEN_ID` 是完整链接，会自动复用其中的域名 | — |
+| `CONNECT_TIMEOUT` | 连接超时秒数（默认：`5`） | — |
+| `READ_TIMEOUT` | 响应读取超时秒数（默认：`15`） | — |
+| `REQUEST_RETRIES` | 建连阶段失败的重试次数（默认：`2`） | — |
+| `RETRY_BACKOFF` | 重试退避系数秒数（默认：`1.0`） | — |
 | `GPS_LON` | GPS 签到经度 | — |
 | `GPS_LAT` | GPS 签到纬度 | — |
 | `ENABLE_SEND_EMAIL` | 启用邮件通知（`true` / `1`） | — |

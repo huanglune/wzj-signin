@@ -6,9 +6,21 @@ from pathlib import Path
 
 import requests
 
-from wzj_signin.qrsign import QRSign
-from wzj_signin.logger import log
 from wzj_signin.email import send_email
+from wzj_signin.http_client import (
+    DEFAULT_CONNECT_TIMEOUT,
+    DEFAULT_READ_TIMEOUT,
+    DEFAULT_RETRY_BACKOFF,
+    DEFAULT_REQUEST_RETRIES,
+    RequestConfig,
+    SignTarget,
+    build_request_config,
+    get_active_signs,
+    make_session,
+    submit_sign_in,
+)
+from wzj_signin.logger import log
+from wzj_signin.qrsign import QRSign
 from wzj_signin.utils import jitter_position
 
 
@@ -23,8 +35,9 @@ def _load_config() -> dict:
     open_id = os.environ.get("OPEN_ID") or file_cfg.get("openId")
     course_id = os.environ.get("COURSE_ID") or file_cfg.get("courseId")
     student_id = os.environ.get("STUDENT_ID") or file_cfg.get("studentId", "")
-    poll_interval = int(
-        os.environ.get("POLL_INTERVAL") or file_cfg.get("pollInterval", 10)
+    poll_interval = _parse_int(
+        os.environ.get("POLL_INTERVAL") or file_cfg.get("pollInterval", 10),
+        "POLL_INTERVAL",
     )
     gps_lon = os.environ.get("GPS_LON") or file_cfg.get("gps_lon", "")
     gps_lat = os.environ.get("GPS_LAT") or file_cfg.get("gps_lat", "")
@@ -37,19 +50,41 @@ def _load_config() -> dict:
         log.error("Missing COURSE_ID, set env var or provide config.toml")
         sys.exit(1)
 
-    # https://v18.teachermate.cn/wechat-pro-ssr/\?openid\=97352238a0bb10f19d912ade240511ec\&from\=wzj
-    # https://v18.teachermate.cn/wechat-pro-ssr/?openid=97352238a0bb10f19d912ade240511ec&from=wzj
-    # Support pasting the full URL as openId, auto-extract the openid param
-    if open_id.startswith("https://"):
-        open_id = open_id.replace(r"\?", "?").replace(r"\=", "=").replace(r"\&", "&")
-        open_id = open_id.split("openid=")[-1].split("&")[0]
+    try:
+        request_config = build_request_config(
+            open_id=open_id,
+            api_base_url=os.environ.get("API_BASE_URL") or file_cfg.get("apiBaseUrl"),
+            connect_timeout=_parse_float(
+                os.environ.get("CONNECT_TIMEOUT")
+                or file_cfg.get("connectTimeout", DEFAULT_CONNECT_TIMEOUT),
+                "CONNECT_TIMEOUT",
+            ),
+            read_timeout=_parse_float(
+                os.environ.get("READ_TIMEOUT")
+                or file_cfg.get("readTimeout", DEFAULT_READ_TIMEOUT),
+                "READ_TIMEOUT",
+            ),
+            request_retries=_parse_int(
+                os.environ.get("REQUEST_RETRIES")
+                or file_cfg.get("requestRetries", DEFAULT_REQUEST_RETRIES),
+                "REQUEST_RETRIES",
+            ),
+            retry_backoff=_parse_float(
+                os.environ.get("RETRY_BACKOFF")
+                or file_cfg.get("retryBackoff", DEFAULT_RETRY_BACKOFF),
+                "RETRY_BACKOFF",
+            ),
+        )
+    except ValueError as exc:
+        log.error(str(exc))
+        sys.exit(1)
 
     return {
-        "openId": open_id,
         "courseId": course_id,
         "studentId": student_id,
         "pollInterval": poll_interval,
         "positions": positions,
+        "requestConfig": request_config,
     }
 
 
@@ -61,61 +96,54 @@ USER_AGENT = (
 signed_ids: set[int] = set()
 
 
-def _make_session(open_id: str) -> requests.Session:
-    s = requests.Session()
-    s.headers.update({"User-Agent": USER_AGENT, "openId": open_id})
-    return s
+def _parse_int(value: str | int, name: str) -> int:
+    try:
+        return int(value)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"{name} must be an integer") from exc
 
 
-def get_active_signs(session: requests.Session) -> list[dict]:
-    url = (
-        "https://v18.teachermate.cn/wechat-api/v1/class-attendance/student/active_signs"
-    )
-    resp = session.get(url, timeout=15)
-    resp.raise_for_status()
-    return resp.json()
+def _parse_float(value: str | float, name: str) -> float:
+    try:
+        return float(value)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"{name} must be a number") from exc
 
 
 def sign_in_one(
     session: requests.Session,
-    course_name: str,
-    course_id: int,
-    sign_id: int,
-    positions: tuple[str, str] = None,
+    request_config: RequestConfig,
+    sign_target: SignTarget,
 ) -> bool:
-    url = "https://v18.teachermate.cn/wechat-api/v1/class-attendance/student-sign-in"
-    data = {"courseId": course_id, "signId": sign_id}
-    if positions:
-        data["lon"] = positions[0]
-        data["lat"] = positions[1]
-
-    resp = session.post(url, data=data, timeout=15)
-    resp.raise_for_status()
-    result = resp.json()
+    result = submit_sign_in(session, request_config, sign_target)
     if "errorCode" in result:
         if result.get("errorCode") == 305:
             log.info(
                 "%s already signed signId=%s: %s",
-                course_name,
-                sign_id,
+                sign_target.course_name,
+                sign_target.sign_id,
                 result.get("msgClient"),
             )
             return True
         log.warning(
             "%s sign-in failed signId=%s: %s",
-            course_name,
-            sign_id,
+            sign_target.course_name,
+            sign_target.sign_id,
             result.get("msgClient", result),
         )
         return False
     log.info(
-        "%s sign-in success signId=%s rank:%s", course_name, sign_id, result.get("studentRank")
+        "%s sign-in success signId=%s rank:%s",
+        sign_target.course_name,
+        sign_target.sign_id,
+        result.get("studentRank"),
     )
     return True
 
 
 def process_signs(
     session: requests.Session,
+    request_config: RequestConfig,
     signs: list[dict],
     student_id: str,
     positions: tuple[str, str] | None,
@@ -139,7 +167,11 @@ def process_signs(
                 )
                 signed_ids.add(sign_id)
 
-            elif sign_in_one(session, course_name, course_id, sign_id, positions):
+            elif sign_in_one(
+                session,
+                request_config,
+                SignTarget(course_name, course_id, sign_id, positions),
+            ):
                 send_email(
                     "Sign-in Success", f"{course_name} GPS sign-in success signId={sign_id}"
                 )
@@ -163,27 +195,38 @@ def process_signs(
             continue
 
         log.info("Normal sign-in found: %s (signId=%s)", name, sign_id)
-        if sign_in_one(session, course_name, course_id, sign_id):
+        if sign_in_one(
+            session,
+            request_config,
+            SignTarget(course_name, course_id, sign_id),
+        ):
             signed_ids.add(sign_id)
             send_email("Sign-in Success", f"{course_name} normal sign-in success signId={sign_id}")
 
 
 def main() -> None:
     config = _load_config()
-    session = _make_session(config["openId"])
+    request_config = config["requestConfig"]
+    session = make_session(USER_AGENT, request_config)
     student_id = config["studentId"]
     poll_interval = config["pollInterval"]
     positions = config["positions"]
 
-    log.info("Sign-in monitor started, polling every %d seconds", poll_interval)
+    log.info(
+        "Sign-in monitor started, polling every %d seconds (connect timeout %.1fs, read timeout %.1fs, retries %d)",
+        poll_interval,
+        request_config.connect_timeout,
+        request_config.read_timeout,
+        request_config.request_retries,
+    )
     consecutive_errors = 0
 
     while True:
         try:
-            signs = get_active_signs(session)
+            signs = get_active_signs(session, request_config)
             consecutive_errors = 0
             if signs:
-                process_signs(session, signs, student_id, positions)
+                process_signs(session, request_config, signs, student_id, positions)
             else:
                 log.debug("No active sign-ins")
         except requests.HTTPError as e:
@@ -193,6 +236,25 @@ def main() -> None:
                 return
             consecutive_errors += 1
             log.error("Request error (consecutive #%d): %s", consecutive_errors, e)
+        except requests.ConnectTimeout as e:
+            consecutive_errors += 1
+            log.error(
+                "Connect timeout to %s (consecutive #%d, timeout %.1fs, retries %d): %s",
+                request_config.api_base_url,
+                consecutive_errors,
+                request_config.connect_timeout,
+                request_config.request_retries,
+                e,
+            )
+        except requests.ReadTimeout as e:
+            consecutive_errors += 1
+            log.error(
+                "Read timeout from %s (consecutive #%d, timeout %.1fs): %s",
+                request_config.api_base_url,
+                consecutive_errors,
+                request_config.read_timeout,
+                e,
+            )
         except requests.RequestException as e:
             consecutive_errors += 1
             log.error("Request error (consecutive #%d): %s", consecutive_errors, e)

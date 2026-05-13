@@ -72,6 +72,8 @@ receiver = "notify@example.com"
 ```
 
 > Environment variables take priority over config file values.
+>
+> If `OPEN_ID` is the full TeacherMate URL, `wzj-signin` now extracts both the `openid` and the API host from that URL automatically.
 
 ## Environment Variables
 
@@ -81,6 +83,11 @@ receiver = "notify@example.com"
 | `COURSE_ID` | Course ID | ✅ |
 | `STUDENT_ID` | Student ID (required for QR sign-in) | — |
 | `POLL_INTERVAL` | Polling interval in seconds (default: `10`) | — |
+| `API_BASE_URL` | Override API base URL; if `OPEN_ID` is a full URL, its host is used automatically | — |
+| `CONNECT_TIMEOUT` | Connection timeout in seconds (default: `5`) | — |
+| `READ_TIMEOUT` | Response read timeout in seconds (default: `15`) | — |
+| `REQUEST_RETRIES` | Retry count for connection-stage failures (default: `2`) | — |
+| `RETRY_BACKOFF` | Retry backoff factor in seconds (default: `1.0`) | — |
 | `GPS_LON` | GPS longitude | — |
 | `GPS_LAT` | GPS latitude | — |
 | `ENABLE_SEND_EMAIL` | Enable email notification (`true` / `1`) | — |

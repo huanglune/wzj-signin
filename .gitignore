@@ -11,3 +11,6 @@ wheels/
 
 # Config with credentials
 config.toml
+
+# Local task artifacts
+.codex-tasks/

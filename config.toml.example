@@ -3,6 +3,14 @@ openId = "your_open_id"
 courseId = "your_course_id"
 studentId = "your_student_id"
 pollInterval = 10
+connectTimeout = 5
+readTimeout = 15
+requestRetries = 2
+retryBackoff = 1.0
+
+# Optional API base URL override.
+# When OPEN_ID is a full TeacherMate URL, the same scheme + host is used automatically.
+# apiBaseUrl = "https://v18.teachermate.cn"
 
 # GPS coordinates (optional)
 gps_lon = 113.999877
