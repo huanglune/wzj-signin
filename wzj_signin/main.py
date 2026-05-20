@@ -1,6 +1,5 @@
 import os
 import sys
-import time
 import tomllib
 from pathlib import Path
 
@@ -21,7 +20,7 @@ from wzj_signin.http_client import (
 )
 from wzj_signin.logger import log
 from wzj_signin.qrsign import QRSign
-from wzj_signin.utils import jitter_position
+from wzj_signin.utils import jitter_position, sleep_with_progress
 
 
 def _load_config() -> dict:
@@ -225,10 +224,9 @@ def main() -> None:
         try:
             signs = get_active_signs(session, request_config)
             consecutive_errors = 0
+            log.info("Poll succeeded, %d active sign(s)", len(signs))
             if signs:
                 process_signs(session, request_config, signs, student_id, positions)
-            else:
-                log.debug("No active sign-ins")
         except requests.HTTPError as e:
             if e.response is not None and e.response.status_code == 401:
                 log.error("openId expired, please update config")
@@ -260,4 +258,4 @@ def main() -> None:
             log.error("Request error (consecutive #%d): %s", consecutive_errors, e)
         except Exception:
             log.exception("Unknown error")
-        time.sleep(poll_interval)
+        sleep_with_progress(poll_interval)

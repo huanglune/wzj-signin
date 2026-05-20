@@ -137,5 +137,6 @@ class QRSign:
             on_error=self._on_error,
             on_close=self._on_close,
         )
-        self._ws.run_forever()
+        # http_no_proxy=["*"] 跳过所有代理，避免被本地翻墙代理拦截国内 wss。
+        self._ws.run_forever(http_no_proxy=["*"])
         return self._done.is_set()

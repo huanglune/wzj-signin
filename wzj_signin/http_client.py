@@ -65,6 +65,8 @@ def build_request_config(
 
 def make_session(user_agent: str, request_config: RequestConfig) -> requests.Session:
     session = requests.Session()
+    # TeacherMate 是国内 API，禁用 HTTPS_PROXY 等环境变量避免被本地代理拦截。
+    session.trust_env = False
     session.headers.update({"User-Agent": user_agent, "openId": request_config.open_id})
     adapter = HTTPAdapter(max_retries=_build_retry(request_config))
     session.mount("https://", adapter)
